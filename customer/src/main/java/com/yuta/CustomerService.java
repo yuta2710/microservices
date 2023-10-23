@@ -2,16 +2,17 @@ package com.yuta;
 
 import com.yuta.clients.fraud.FraudCheckResponse;
 import com.yuta.clients.fraud.FraudClient;
+import com.yuta.clients.notification.NotificationClient;
+import com.yuta.clients.notification.NotificationRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 @Service
 @AllArgsConstructor
 public class CustomerService {
     private final CustomerRepository customerRepository;
-    private final RestTemplate restTemplate;
     private final FraudClient fraudClient; // inject by enable open feign basedPackages in module main application
+    private final NotificationClient notificationClient;
 
     public void registerCustomer(CustomerRegistrationRequest customerRegistrationRequest) {
         Customer customer = Customer.builder()
@@ -30,6 +31,12 @@ public class CustomerService {
             throw new IllegalStateException("fraudster");
         }
         // todo: send notification
-
+        notificationClient.saveNotification(
+                new NotificationRequest(
+                        customer.getId(),
+                        customer.getEmail(),
+                        "Hi, welcome to suck my dick"
+                )
+        );
     }
 }
